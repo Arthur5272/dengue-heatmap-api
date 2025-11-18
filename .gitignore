@@ -1,0 +1,19 @@
+# Bytecode
+__pycache__/
+*.pyc
+
+# Ambientes Virtuais
+.venv/
+venv/
+ENV/
+
+# Arquivos .env
+.env
+
+# Cache e Exports
+.pysus_cache/
+map_exports/
+
+# Metadados de IDE
+.vscode/
+.idea/

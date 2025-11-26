@@ -1,4 +1,4 @@
-# src/app/api/endpoints/sync.py
+
 
 import logging
 from typing import List, Optional
@@ -7,15 +7,15 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db, AsyncSessionFactory
-# REMOVIDO: from app.services.pysus_sync import PysusSyncService, SyncServiceError
-# ADICIONADO:
+
+
 from app.services.infodengue_sync import InfoDengueSyncService, SyncServiceError
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-# --- MUDANÇA AQUI ---
-# O request agora aceita uma janela de tempo (opcional)
+
+
 class SyncRequest(BaseModel):
     ew_start: Optional[int] = None
     ey_start: Optional[int] = None
@@ -38,17 +38,14 @@ async def trigger_sync(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    Inicia o processo de sincronização do InfoDengue em background.
-    Se nenhuma janela de tempo for fornecida, usa o padrão (últimas 8 semanas).
-    """
+    
     
     time_window = request.model_dump()
     
     async def background_sync_task(params: dict):
         async with AsyncSessionFactory() as session:
             try:
-                # --- MUDANÇA AQUI ---
+                
                 service = InfoDengueSyncService(session)
                 logger.info(f"Iniciando task de sincronização (InfoDengue) em background com params: {params}")
                 stats = await service.run_full_sync(**params)
@@ -76,19 +73,16 @@ async def trigger_sync_and_wait(
     request: SyncRequest,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    Inicia a sincronização do InfoDengue e aguarda a conclusão.
-    **Atenção:** Pode levar vários minutos e causar timeout.
-    """
+    
     
     time_window = request.model_dump()
     logger.info(f"Iniciando sincronização (InfoDengue - aguardando) com params: {time_window}")
     
     try:
-        # --- MUDANÇA AQUI ---
+        
         service = InfoDengueSyncService(db)
         stats = await service.run_full_sync(**time_window)
-        # Commit é tratado pelo 'get_db'
+        
         
         return SyncResponse(
             message="Sincronização (InfoDengue) concluída.",
